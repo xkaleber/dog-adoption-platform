@@ -1,0 +1,74 @@
+<%- include('partials/header'); -%>
+
+<header>
+  <div class="headings">
+    <h2>Adopt a Dog</h2>
+    <p>Enter the ID of the dog you want to adopt and a thank-you message to the person who registered the dog.</p>
+  </div>
+</header>
+
+<div class="dog-list">
+<ul>
+    <% dogs.forEach(dog => { %>
+        <li>
+            <h3><%= dog.name %></h3>
+            <p>Dog ID: <%= dog._id %></p>
+            <p><%= dog.description %></p>
+            <p>Registered by: <%= dog.registeredByName %></p>
+            <p>Status: <%= dog.adopted ? 'Adopted' : 'Available' %></p>
+        </li>
+    <% }) %>
+</ul>
+</div>
+
+<form>
+    <label for="dogId">Dog ID:</label>
+    <input type="text" name="dogId" id="dogId" required />
+    <div class="dogId error"></div>
+    <label for="thankYouMessage">Thank-you message:</label>
+    <textarea name="thankYouMessage" id="thankYouMessage" rows="5" required></textarea>
+    <div class="thankYouMessage error"></div>
+    <button type="submit">Adopt Dog</button>
+</form>
+
+
+<script>
+    const form = document.querySelector('form');
+    const dogIdError = document.querySelector('.dogId.error');
+    const thankYouMessageError = document.querySelector('.thankYouMessage.error');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // reset error messages
+        dogIdError.textContent = '';
+        thankYouMessageError.textContent = '';
+
+        //get the values
+        const dogId = form.dogId.value;
+        const thankYouMessage = form.thankYouMessage.value;
+
+        // send a post request to the server
+        try {
+            const res = await fetch('/dogs/adopt', {
+                method: 'POST',
+                body: JSON.stringify({ dogId, thankYouMessage }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            console.log(data);
+            if (data.errors) {
+                dogIdError.textContent = data.errors.dogId;
+                thankYouMessageError.textContent = data.errors.thankYouMessage;
+            }
+            if (data.message) {
+                location.assign('/dogs/adopted'); // redirect to the adopted dogs page
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
+    });
+</script>
+
+<%- include('partials/footer'); -%>

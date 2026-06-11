@@ -1,0 +1,30 @@
+<%- include('partials/header'); -%>
+
+    <h2>My Adopted Dogs</h2>
+    <p>Here are the dogs you have adopted. Thank you for giving them a loving home!</p>
+
+<div class="dog-list">
+<ul>
+    <% dogs.forEach(dog => { %>
+        <li>
+            <h3><%= dog.name %></h3>
+            <p><%= dog.description %></p>
+            <p>Status: <%= dog.adopted ? 'Adopted' : 'Available' %></p>
+        </li>
+    <% }) %>
+</ul>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+    <% if (dogs.length === 3) { %>
+        <a href="/dogs/adopted?page=<%= page + 1 %>">Next</a>
+    <% } %>
+    <% if (page > 0) { %>
+        <a href="/dogs/adopted?page=<%= page - 1 %>">Previous</a>
+    <% } %>
+</div>
+
+<div><button id="adoptDogButton" onClick="location.href='/dogs/adopt'">Adopt A New Dog</button></div>
+
+<%- include('partials/footer'); -%>

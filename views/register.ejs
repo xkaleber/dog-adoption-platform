@@ -1,0 +1,53 @@
+<%- include('partials/header'); -%>
+
+<form>
+    <h2>register a dog</h2>
+    <label for="name">name:</label>
+    <input type="text" name="name" required />
+    <div class="name error"></div>
+    <label for="description">description:</label>
+    <textarea name="description" rows="5" required></textarea>
+    <div class="description error"></div>
+    <button type="submit">Register Dog</button>
+</form>
+
+<script>
+    const form = document.querySelector('form');
+    const nameError = document.querySelector('.name.error');
+    const descriptionError = document.querySelector('.description.error');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // reset error messages
+        nameError.textContent = '';
+        descriptionError.textContent = '';
+
+        //get the values
+        const name = form.name.value;
+        const description = form.description.value;
+
+        // send a post request to the server
+        try {
+            const res = await fetch('/dogs/register', {
+                method: 'POST',
+                body: JSON.stringify({ name, description }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            console.log(data);
+            if (data.errors) {
+                nameError.textContent = data.errors.name;
+                descriptionError.textContent = data.errors.description;
+            }
+            if (data.dog) {
+                location.assign('/dogs/registered'); // redirect to the registered dogs page
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
+    });
+</script>
+
+<%- include('partials/footer'); -%>

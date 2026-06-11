@@ -1,0 +1,55 @@
+<%- include('partials/header'); -%>
+
+<h2>My Registered Dogs</h2>
+<div class="dog-list">
+<ul>
+    <% dogs.forEach(dog => { %>
+        <li>
+            <h3><%= dog.name %></h3>
+            <p><%= dog.description %></p>
+            <p>Status: <%= dog.adopted ? 'Adopted' : 'Available' %></p>
+            <div class="removal error"></div>
+            <a href="/dogs/remove/<%= dog._id %>">Remove</a>
+        </li>
+    <% }) %>
+</ul>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+    <% if (dogs.length === 3) { %>
+        <a href="/dogs/registered?page=<%= page + 1 %>">Next</a>
+    <% } %>
+    <% if (page > 0) { %>
+        <a href="/dogs/registered?page=<%= page - 1 %>">Previous</a>
+    <% } %>
+
+<div><button id="registerDogButton" onClick="location.href='/dogs/register'">Register New Dog</button></div>
+
+<script>
+    const removalErrors = document.querySelectorAll('.removal.error');
+
+    // add event listeners to all remove links
+    document.querySelectorAll('a[href^="/dogs/remove/"]').forEach(link => {
+        link.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const dogId = link.getAttribute('href').split('/').pop();
+            try {
+                const res = await fetch(`/dogs/remove/${dogId}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.error) {
+                    // find the corresponding error div and display the error message
+                    const errorDiv = link.parentElement.querySelector('.removal.error');
+                    errorDiv.textContent = data.error;
+                }
+                if (res.status === 200) {
+                    location.reload(); // reload the page to update the list of dogs
+                }
+            }
+            catch (err) {
+                console.log(err);
+            }
+        });
+    });
+</script>
+<%- include('partials/footer'); -%>
