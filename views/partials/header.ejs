@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Dog Adoption Platform</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -11,10 +11,23 @@
     <ul>
       <% if (user) { %>
         <li>Welcome, <%= user.username %></li>
-        <li><a href="/logout">logout</a></li>
+        <li><a href="#" onclick="logoutUser(event)">logout</a></li>
       <% } else { %>
         <li><a href="/login">login</a></li>
         <li><a href="/signup" class="btn">sign up</a></li>
       <% } %>
     </ul>
   </nav>
+
+  <script>
+  async function logoutUser(e) {
+    e.preventDefault(); // Stop the link from redirecting
+    
+    const res = await fetch('/logout', { method: 'POST' });
+    const data = await res.json();
+    
+    if (data.logout) {
+      window.location.assign('/'); // Safe client-side redirect back home
+    }
+  }
+</script>

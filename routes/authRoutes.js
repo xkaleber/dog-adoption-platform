@@ -1,16 +1,16 @@
-// Replace this file with the routes of your API
 const { Router } = require('express');
 const authController = require('../controllers/authController');
-const { requireAuth } = require('../middlewares/authMiddleware');
-
 const router = Router();
 
+// Authentication Views
 router.get('/signup', authController.signup_get);
-router.post('/signup', authController.signup_post);
-
 router.get('/login', authController.login_get);
+
+// Authentication Logic
+router.post('/signup', authController.signup_post);
 router.post('/login', authController.login_post);
 
-router.get('/logout', authController.logout_get);
+// Security Fix: Handle logout via POST to prevent CSRF logout attacks
+router.post('/logout', authController.logout_post);
 
 module.exports = router;

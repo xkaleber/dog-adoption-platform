@@ -12,43 +12,51 @@
 </form>
 
 <script>
-    const form = document.querySelector('form');
-    const usernameError = document.querySelector('.username.error');
-    const passwordError = document.querySelector('.password.error');
+  const form = document.querySelector('form');
+  const usernameError = document.querySelector('.username.error');
+  const passwordError = document.querySelector('.password.error');
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        // reset error messages
-        usernameError.textContent = '';
-        passwordError.textContent = '';
+    // Reset error messages from previous attempts
+    usernameError.textContent = '';
+    passwordError.textContent = '';
 
-        //get the values
-        const username = form.username.value;
-        const password = form.password.value;
+    // Capture user input safely
+    const username = form.username.value.trim(); // Trim spaces to prevent accidental typos
+    const password = form.password.value;
 
-        // send a post request to the server
-        try {
-            const res = await fetch('/login', {
-                method: 'POST',
-                body: JSON.stringify({ username, password }),
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include'
-            });
-            const data = await res.json();
-            console.log(data);
-            if (data.errors) {
-                usernameError.textContent = data.errors.username;
-                passwordError.textContent = data.errors.password;
-            }
-            if (data.user) {
-                location.assign('/'); // redirect to home page
-            }
-        }
-        catch (err) {
-            console.log(err);
-        }
-    });
+    try {
+      const res = await fetch('/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include' // Enforces storing the HttpOnly cookie securely
+      });
+
+      // Safely extract JSON data regardless of status code
+      const data = await res.json();
+      console.log(data);
+
+      // Handle validation/login errors returned by the controller
+      if (data.errors) {
+        usernameError.textContent = data.errors.username || '';
+        passwordError.textContent = data.errors.password || '';
+        return; // Halt execution
+      }
+
+      // If the login is successful and the user ID is returned
+      if (res.ok && data.user) {
+        location.assign('/'); // Redirect safely to home page
+      }
+      
+    } catch (err) {
+      console.error('Network or parsing error occurred:', err);
+      // Fallback UI indication for complete connection loss
+      usernameError.textContent = 'Unable to connect to the server. Please try again.';
+    }
+  });
 </script>
 
 <%- include('partials/footer'); -%>

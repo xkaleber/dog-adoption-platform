@@ -9,7 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const dogRoutes = require('./routes/dogRoutes');
 
 const cookieParser = require('cookie-parser');
-const { requireAuth, checkUser } = require('./middlewares/authMiddleware');
+const { checkUser } = require('./middlewares/authMiddleware');
 
 // Initialize app
 const app = express();
@@ -30,15 +30,14 @@ connectToDb((err) => {
     console.error('Failed to start server due to database error:', err);
     process.exit(1); // Stop the app if DB fails to connect
   }
-  
-  // ONLY start listening after a successful db connection
   app.listen(3000, () => {
     console.log('App is listening on port 3000');
   });
 });
 
+app.use(checkUser); // Ensure user is checked for all routes, including static files
+
 // Routes
-app.get(/.*/, checkUser); // Ensure user is checked for all routes, including static files
 app.get('/', (req, res) => {res.render('home');});
 app.use(authRoutes);
 app.use('/dogs', dogRoutes);
